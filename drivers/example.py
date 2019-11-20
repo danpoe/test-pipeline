@@ -18,12 +18,12 @@ def _main():
 
   # Check property 1
   cmd = ['check_cmd', '--arg']
-  p = rt.CheckPass(cmd, retcode=0)
+  p = rt.CheckPass(cmd, retcode=lambda r: r == 0)
   rt.add_pass(p)
 
   # Check property 2
   cmd = ['check_cmd' , '--arg']
-  p = rt.CheckPass(cmd, regex_stdout=r'__CPROVER__start')
+  p = rt.CheckPass(cmd, regex_stdout=r'example')
   rt.add_pass(p)
 
   # Run analysis
