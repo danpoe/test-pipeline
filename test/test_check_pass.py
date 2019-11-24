@@ -1,4 +1,5 @@
 import run_tests as rt
+import subprocess
 import unittest
 
 class Test(unittest.TestCase):
@@ -17,3 +18,8 @@ class Test(unittest.TestCase):
       retcode=lambda r: r == 1)
     r = p('file')
     self.assertFalse(r)
+
+  def test_check_pass_timeout(self):
+    p = rt.CheckPass(['sleep'], timeout=0.1)
+    with self.assertRaises(subprocess.TimeoutExpired):
+      p('1')
