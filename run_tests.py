@@ -28,9 +28,9 @@ class RunPass:
     s = 'run_pass'
     if prefix:
       s = prefix + '.' + s
-    self.output.append(s + '.stdout')
-    self.output.append(s + '.stderr')
-    self.output.append(s + '.data')
+    self.output.append(f'{s}.stdout')
+    self.output.append(f'{s}.stderr')
+    self.output.append(f'{s}.data')
 
   def __call__(self, f, output_files):
     global _utime_sum
@@ -103,11 +103,11 @@ class RunPass:
     _utime_sum = res.ru_utime
     _stime_sum = res.ru_stime
 
-    data.write('Timeout: ' + str(timeout) + '\n')
-    data.write('User time: ' + str(utime) + '\n')
-    data.write('Sys time: ' + str(stime) + '\n')
-    data.write('Real time: ' + str(diff) + '\n')
-    data.write('Exit code: ' + str(r) + '\n')
+    data.write(f'Timeout: {timeout}\n')
+    data.write(f'User time: {utime}\n')
+    data.write(f'Sys time: {stime}\n')
+    data.write(f'Real time: {diff}\n')
+    data.write(f'Exit code: {r}\n')
 
     return True
 
