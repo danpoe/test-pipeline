@@ -15,7 +15,7 @@ _stime_sum = 0
 
 class RunPass:
   def __init__(self, cmd, prefix='', timeout=None, ignore_file=False, add=None):
-    self.cmd = cmd
+    self.cmd = cmd[:]
     self.prefix = prefix
     self.timeout = timeout
     self.ignore_file = ignore_file
@@ -40,8 +40,7 @@ class RunPass:
     stderr = output_files[1]
     data = output_files[2]
 
-    # Copy list
-    cmd = list(self.cmd)
+    cmd = self.cmd[:]
 
     if type(self.add) is list:
       cmd.append(self.add[0])
