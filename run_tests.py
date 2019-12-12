@@ -27,7 +27,7 @@ class RunPass:
     self.output = []
     s = 'run_pass'
     if prefix:
-      s = prefix + '.' + s
+      s = f'{prefix}.{s}'
     self.output.append(f'{s}.stdout')
     self.output.append(f'{s}.stderr')
     self.output.append(f'{s}.data')
