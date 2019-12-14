@@ -7,11 +7,52 @@ import re
 import resource
 import subprocess
 import tempfile
+import threading
 import time
+
+# Config
+_include_children = True
 
 # Sum of previous measurements
 _utime_sum = 0
 _stime_sum = 0
+
+class MeasureMemoryUsage(threading.Thread):
+  def __init__(self, process, step=0.1):
+    super(MeasureMemoryUsage, self).__init__()
+    self.process = process
+    self.step = step
+    self.stop = threading.Event()
+    self.max_rss = 0
+    self.max_vms = 0
+
+  def run(self):
+    while not self.stop.is_set():
+      rss = 0
+      vms = 0
+      try:
+        m = self.process.memory_info()
+        rss += m.rss
+        vms += m.vms
+        if _include_children:
+          children = self.process.children(True)
+          for c in children:
+            m = c.memory_info()
+            rss += m.rss
+            vms += m.vms
+      except psutil.NoSuchProcess:
+        pass
+      except psutil.AccessDenied:
+        pass
+      if rss > self.max_rss:
+        self.max_rss = m.rss
+      if vms > self.max_vms:
+        self.max_vms = m.vms
+      time.sleep(self.step)
+
+  def join(self, timeout=None):
+    self.stop.set()
+    super(MeasureMemoryUsage, self).join(timeout)
 
 class RunPass:
   def __init__(self, cmd, prefix='', timeout=None, ignore_file=False, add=None):
@@ -66,6 +107,9 @@ class RunPass:
     except ValueError as ve:
       raise
 
+    thread = MeasureMemoryUsage(p)
+    thread.start()
+
     try:
       try:
         r = p.wait(timeout=self.timeout)
@@ -79,6 +123,8 @@ class RunPass:
       raise
 
     after = time.perf_counter()
+
+    thread.join()
 
     diff = after - before
     assert diff >= 0
@@ -106,6 +152,8 @@ class RunPass:
     data.write(f'User time: {utime}\n')
     data.write(f'Sys time: {stime}\n')
     data.write(f'Real time: {diff}\n')
+    data.write(f'Maximum resident set size: {thread.max_rss}\n')
+    data.write(f'Maximum virtual memory size: {thread.max_vms}\n')
     data.write(f'Exit code: {r}\n')
 
     return True

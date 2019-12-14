@@ -20,7 +20,8 @@ class Test(unittest.TestCase):
       s = f_stderr.read()
       self.assertEqual(s, '')
 
-      l = ['Timeout', 'User time', 'Sys time', 'Real time', 'Exit code']
+      l = ['Timeout', 'User time', 'Sys time', 'Real time',
+        'Maximum resident set size', 'Maximum virtual memory size', 'Exit code']
       f_data.seek(0)
       for i, line in enumerate(f_data):
         self.assertTrue(line.startswith(l[i]))
