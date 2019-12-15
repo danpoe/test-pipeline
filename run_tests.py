@@ -18,6 +18,8 @@ _utime_sum = 0
 _stime_sum = 0
 
 class MeasureMemoryUsage(threading.Thread):
+  '''Measures memory usage of a given process'''
+
   def __init__(self, process, step=0.1):
     super(MeasureMemoryUsage, self).__init__()
     self.process = process
@@ -55,7 +57,16 @@ class MeasureMemoryUsage(threading.Thread):
     super(MeasureMemoryUsage, self).join(timeout)
 
 class RunPass:
-  def __init__(self, cmd, prefix='', timeout=None, ignore_file=False, add=None):
+  '''Runs a given command and record performance metrics'''
+
+  def __init__(
+    self,
+    cmd: list,
+    prefix='',
+    timeout=None,
+    ignore_file=False,
+    add=None):
+
     self.cmd = cmd[:]
     self.prefix = prefix
     self.timeout = timeout
@@ -159,15 +170,37 @@ class RunPass:
     return True
 
 class CheckPass:
+  '''Runs a given command and verifies its return code and output'''
+
   def __init__(
     self,
-    cmd,
+    cmd : list,
     regex_stdout=None,
     regex_stderr=None,
     retcode=lambda r: True,
     check_stdout=lambda r: True,
     check_stderr=lambda r: True,
     timeout=None):
+    '''
+    Create and configure the checking pass
+
+    The constructor takes several parameters which configure various checks that
+    are performed on the return code and output of the command. The pass
+    succeeds if all the checks succeed.
+
+    :param cmd: Command to run, including arguments
+    :param regex_stdout: Regex that must match the output written to stdout for
+        the pass to succeed
+    :param regex_stderr: Regex that must match the output written to stderr for
+        the pass to succeed
+    :param retcode: Function that will be applied to the return code of the
+        command. The function must return True for the pass to succeed.
+    :param check_stdout: Function that will be applied to the output written to
+        stdout. The function must return True for the pass to succeed.
+    :param check_stderr: Function that will be applied to the output written to
+        stderr. The function must return True for the pass to succeed.
+    :timeout: Timeout for the command
+    '''
 
     self.cmd = cmd[:]
     self.regex_stdout = regex_stdout
