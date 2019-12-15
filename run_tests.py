@@ -66,6 +66,16 @@ class RunPass:
     timeout=None,
     ignore_file=False,
     add=None):
+    '''
+    Create and configure the running pass
+
+    :param cmd: Command to run, including arguments
+    :param prefix: Prefix of filenames for created files
+    :param timeout: Timeout for command
+    :param ignore_file: If True, the filename passed to __call__() will be
+        ignored
+    :param add: File suffix to add to the filename passed to __call__()
+    '''
 
     self.cmd = cmd[:]
     self.prefix = prefix
