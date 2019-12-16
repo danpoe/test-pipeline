@@ -6,16 +6,25 @@ import psutil
 import re
 import resource
 import subprocess
+import sys
 import tempfile
 import threading
 import time
+import traceback
 
 # Config
+_input_file = ''
+_start_line = 0
+_num_lines = 0
 _include_children = True
+_progress = True
 
 # Sum of previous measurements
 _utime_sum = 0
 _stime_sum = 0
+
+class TimeoutException(Exception):
+  pass
 
 class MeasureMemoryUsage(threading.Thread):
   '''Measures memory usage of a given process'''
@@ -250,3 +259,31 @@ class CheckPass:
       return False
 
     return True
+
+def _handle_line():
+  pass
+
+def test():
+  '''Run all added analysis passes'''
+
+  with open(_input_file) as f:
+    lines = list(map(lambda l: l.strip(), f))
+
+  n = 0
+
+  for i in range(_start_line, len(lines) + 1):
+    if n >= _num_lines:
+      break
+    line = lines[i-1]
+    if line.startswith('#') or not line:
+      continue
+    n += 1
+    try:
+      _handle_line(line)
+    except KeyboardInterrupt:
+      raise
+    except TimeoutException:
+      traceback.print_exc(file=sys.stdout)
+      raise
+    except BaseException as be:
+      traceback.print_exc(file=sys.stdout)
