@@ -23,6 +23,10 @@ _progress = True
 _utime_sum = 0
 _stime_sum = 0
 
+def progress(msg='', end='\n'):
+  if _progress:
+    print(msg, end=end, flush=True)
+
 class TimeoutException(Exception):
   pass
 
@@ -275,6 +279,7 @@ def test():
     if n >= _num_lines:
       break
     line = lines[i-1]
+    progress(f'Handling line: {i:<7}')
     if line.startswith('#') or not line:
       continue
     n += 1
