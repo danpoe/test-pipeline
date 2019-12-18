@@ -31,12 +31,15 @@ _setup_done = False
 _starting_time = 0
 _timeout = None
 
+
 def progress(msg='', end='\n'):
   if _progress:
     print(msg, end=end, flush=True)
 
+
 class TimeoutException(Exception):
   pass
+
 
 class MeasureMemoryUsage(threading.Thread):
   '''Measures memory usage of a given process'''
@@ -77,6 +80,7 @@ class MeasureMemoryUsage(threading.Thread):
     self.stop.set()
     super(MeasureMemoryUsage, self).join(timeout)
 
+
 class RunPass:
   '''Runs a given command and record performance metrics'''
 
@@ -114,6 +118,7 @@ class RunPass:
     self.output.append(f'{s}.stdout')
     self.output.append(f'{s}.stderr')
     self.output.append(f'{s}.data')
+
 
   def __call__(self, f, output_files):
     global _utime_sum
@@ -200,6 +205,7 @@ class RunPass:
 
     return True
 
+
 class CheckPass:
   '''Runs a given command and verifies its return code and output'''
 
@@ -272,8 +278,10 @@ class CheckPass:
 
     return True
 
+
 def _handle_line():
   pass
+
 
 def setup_arg_parser():
   '''Set up argument parser'''
@@ -287,6 +295,7 @@ def setup_arg_parser():
   parser.add_argument('--start', default=1, type=int)
   parser.add_argument('--num', default=sys.maxsize, type=int)
   return parser
+
 
 def setup(parser=None):
   '''Set up the analysis framework and parse arguments'''
@@ -310,6 +319,7 @@ def setup(parser=None):
   _setup_done = True
 
   return args
+
 
 def test():
   '''Run all added analysis passes'''
