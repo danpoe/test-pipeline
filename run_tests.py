@@ -2,6 +2,7 @@
 
 # Test runner
 
+import argparse
 import psutil
 import re
 import resource
@@ -14,6 +15,8 @@ import traceback
 
 # Config
 _input_file = ''
+_analysis_root = ''
+_output_root = ''
 _start_line = 0
 _num_lines = 0
 _include_children = True
@@ -22,6 +25,11 @@ _progress = True
 # Sum of previous measurements
 _utime_sum = 0
 _stime_sum = 0
+
+# Misc
+_setup_done = False
+_starting_time = 0
+_timeout = None
 
 def progress(msg='', end='\n'):
   if _progress:
@@ -266,6 +274,42 @@ class CheckPass:
 
 def _handle_line():
   pass
+
+def setup_arg_parser():
+  '''Set up argument parser'''
+  parser = argparse.ArgumentParser(description='Run tests')
+  parser.add_argument('--input-file', default='input.txt')
+  parser.add_argument('--analysis-root', default='analysis_root')
+  parser.add_argument('--output-root', default='output_root')
+  parser.add_argument('--memory-limit', type=int)
+  parser.add_argument('--timeout', type=int)
+  parser.add_argument('--progress', action='store_true')
+  parser.add_argument('--start', default=1, type=int)
+  parser.add_argument('--num', default=sys.maxsize, type=int)
+  return parser
+
+def setup(parser=None):
+  '''Set up the analysis framework and parse arguments'''
+  global _input_file
+  global _analysis_root
+  global _output_root
+  global _starting_time
+  global _timeout
+  global _progress
+  global _start_line
+  global _num_lines
+  global _setup_done
+
+  if not parser:
+    parser = setup_arg_parser()
+
+  args = parser.parse_args()
+
+  # TODO: set globals from arguments
+
+  _setup_done = True
+
+  return args
 
 def test():
   '''Run all added analysis passes'''
