@@ -3,9 +3,11 @@
 # Test runner
 
 import argparse
+import os
 import psutil
 import re
 import resource
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -314,7 +316,24 @@ def setup(parser=None):
 
   args = parser.parse_args()
 
-  # TODO: set globals from arguments
+  archive_formats = shutil.get_archive_formats()
+  archive_formats = list(map(lambda p: p[0], archive_formats))
+  assert 'bztar' in archive_formats
+
+  if args.memory_limit:
+    resource.setrlimit(resource.RLIMIT_AS,
+      (args.memory_limit, resource.RLIM_INFINITY))
+
+  _starting_time = time.time()
+  _timeout = args.timeout
+
+  _input_file = os.path.abspath(args.input_file)
+  _analysis_root = os.path.abspath(args.analysis_root)
+  _output_root = os.path.abspath(args.output_root)
+
+  _progress = args.progress
+  _start_line = args.start
+  _num_lines = args.num
 
   _setup_done = True
 
