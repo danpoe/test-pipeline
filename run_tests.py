@@ -25,6 +25,9 @@ _num_lines = 0
 _include_children = True
 _progress = True
 
+# Constants
+_archive_suf = '.tar.bz2'
+
 # Sum of previous measurements
 _utime_sum = 0
 _stime_sum = 0
