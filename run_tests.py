@@ -14,7 +14,7 @@ import tempfile
 import threading
 import time
 import traceback
-import urllib
+import urllib.parse
 
 # Config
 _input_file = ''
