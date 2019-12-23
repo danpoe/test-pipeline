@@ -14,6 +14,7 @@ import tempfile
 import threading
 import time
 import traceback
+import urllib
 
 # Config
 _input_file = ''
@@ -32,6 +33,11 @@ _stime_sum = 0
 _setup_done = False
 _starting_time = 0
 _timeout = None
+
+
+def fatal(msg):
+  print(msg, file=sys.stderr)
+  sys.exit(1)
 
 
 def progress(msg='', end='\n'):
@@ -285,6 +291,57 @@ def _handle_line():
   pass
 
 
+def _is_http_url_entry(s):
+  r = urllib.parse.urlparse(s)
+
+  if r.scheme != 'http' or not r.netloc or not r.path:
+    return False
+
+  if s.endswith('/'):
+    return False
+
+  if re.search(r'/\s*/', s[len('http://'):]):
+    return False
+
+  return True
+
+
+def _is_path_entry(s):
+  if re.search(r'/\s*/', s):
+    return False
+
+  if s.endswith('/'):
+    return False
+
+  if s.startswith('~'):
+    return s.startswith('~/')
+
+  if s.startswith('^'):
+    return s.startswith('^/')
+
+  return True
+
+
+def _is_valid_entry(line):
+  if not line:
+    return True
+
+  if line.startswith('#'):
+    return True
+
+  l = re.findall(_archive_suf, line)
+  if len(l) > 1:
+    return False
+
+  return _is_http_url_entry(line) or _is_path_entry(line)
+
+
+def _validate_lines(lines):
+  for i, line in enumerate(lines):
+    if not _is_valid_entry(line):
+      fatal('Line ' + str(i + 1) + ' in input is invalid')
+
+
 def setup_arg_parser():
   '''Set up argument parser'''
   parser = argparse.ArgumentParser(description='Run tests')
@@ -345,6 +402,7 @@ def test():
 
   with open(_input_file) as f:
     lines = list(map(lambda l: l.strip(), f))
+  _validate_lines(lines)
 
   n = 0
 
