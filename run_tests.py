@@ -342,7 +342,7 @@ def _is_valid_entry(line):
 def _validate_lines(lines):
   for i, line in enumerate(lines):
     if not _is_valid_entry(line):
-      fatal('Line ' + str(i + 1) + ' in input is invalid')
+      fatal(f'Line {i + 1} in input is invalid')
 
 
 def setup_arg_parser():
