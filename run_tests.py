@@ -290,8 +290,83 @@ class CheckPass:
     return True
 
 
-def _handle_line():
+def _split(line):
+  l, s, r = line.partition(_archive_suf)
+  if s:
+    assert not r or (len(r) > 1 and r.startswith('/'))
+    return l + s, r
+  return '', l
+
+
+def _join(*components):
+  return os.path.normpath('/'.join(components))
+
+
+def _expand_path(path):
+  assert os.path.isabs(_input_file)
+
+  dirname = os.path.dirname(_input_file)
+  if path.startswith('^'):
+    assert path.startswith('^/')
+    path = dirname + path[1:]
+    assert os.path.isabs(path)
+    return path
+
+  path = os.path.expanduser(path)
+  path = os.path.abspath(path)
+  return path
+
+
+def _copy_and_merge(src, tgt):
   pass
+
+
+def _handle_archive_entry():
+  pass
+
+
+def _indicates_url():
+  return False
+
+
+def _handle_local_path():
+  pass
+
+
+def _handle_simple_entry(entry):
+  r = urllib.parse.urlparse(entry)
+  if _indicates_url(r):
+    url = entry
+    analysis_path = _join(_analysis_root, r.scheme, r.netloc, r.path)
+    if not os.path.exists(analysis_path):
+      dirname = os.path.dirname(analysis_path)
+      os.makedirs(dirname, exist_ok=True)
+      urllib.request.urlretrieve(url, analysis_path)
+      assert not os.path.exists(analysis_path) or os.path.isfile(analysis_path)
+    output_path = _join(_output_root, r.scheme, r.netloc, r.path)
+  else:
+    path = _expand_path(entry)
+    analysis_path = _join(_analysis_root, path)
+    _copy_and_merge(path, analysis_path)
+    output_path = _join(_output_root, path)
+
+  return analysis_path, output_path
+
+
+def _handle_line(line):
+  assert line
+  pre, suf = _split(line)
+  assert pre or suf
+
+  if pre:
+    analysis_path, output_path = _handle_archive_entry(pre, suf)
+  else:
+    analysis_path, output_path = _handle_simple_entry(suf)
+
+  if os.path.exists(analysis_path):
+    rp = os.path.relpath(analysis_path, _analysis_root)
+    progress('Local path: ' + rp)
+    _handle_local_path(analysis_path, output_path)
 
 
 def _is_http_url_entry(s):
