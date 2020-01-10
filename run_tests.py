@@ -318,7 +318,34 @@ def _expand_path(path):
 
 
 def _copy_and_merge(src, tgt):
-  pass
+  assert os.path.isabs(src)
+  assert os.path.isabs(tgt)
+  assert os.path.exists(src)
+
+  if os.path.isfile(src):
+    if not os.path.exists(tgt):
+      dirname = os.path.dirname(tgt)
+      os.makedirs(dirname, exist_ok=True)
+      shutil.copy2(src, tgt)
+    return
+
+  assert os.path.isdir(src)
+
+  if os.path.exists(tgt):
+    if os.path.isfile(tgt):
+      return
+
+    entries = [(os.path.join(src, entry), os.path.join(tgt, entry))
+      for entry in os.listdir(src)]
+
+    for entry_src, entry_tgt in entries:
+      _copy_and_merge(entry_src, entry_tgt)
+
+    return
+
+  assert not os.path.exists(tgt)
+
+  shutil.copytree(src, tgt)
 
 
 def _handle_archive_entry():

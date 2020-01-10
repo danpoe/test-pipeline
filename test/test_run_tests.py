@@ -23,3 +23,6 @@ class Test(unittest.TestCase):
     self.assertTrue(rt._is_valid_entry(''))
     self.assertTrue(rt._is_valid_entry('# comment'))
     self.assertTrue(rt._is_valid_entry('archive{rt._archive_suf'))
+
+  def test_copy_and_merge(self):
+    pass
