@@ -318,6 +318,16 @@ def _expand_path(path):
 
 
 def _copy_and_merge(src, tgt):
+  '''
+  Copy source to target
+
+  Copies the source file or folder to the target file or folder. Folders are
+  merged, and entries are not overwritten.
+
+  :param src: source file or folder
+  :param tgt: target file or folder
+  '''
+
   assert os.path.isabs(src)
   assert os.path.isabs(tgt)
   assert os.path.exists(src)
