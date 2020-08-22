@@ -366,8 +366,32 @@ def _indicates_url():
   return False
 
 
-def _handle_local_path():
+def _run_analysis(f, output_dir):
   pass
+
+
+def _handle_local_path(analysis_path, output_path):
+  assert os.path.isabs(analysis_path)
+  assert os.path.isabs(output_path)
+
+  worklist = [(analysis_path, output_path)]
+
+  while worklist:
+    p1, p2 = worklist.pop()
+    if os.path.isdir(p1):
+      entries = os.listdir(p1)
+      paths = [(os.path.join(p1, entry), os.path.join(p2, entry))
+        for entry in entries]
+      worklist.extend(paths)
+    else:
+      assert os.path.isfile(p1)
+
+      os.makedirs(p2, exist_ok=True)
+
+      rp = os.path.relpath(p1, _analysis_root)
+      progress('Analysing: ' + rp)
+
+      _run_analysis(p1, p2)
 
 
 def _handle_simple_entry(entry):
