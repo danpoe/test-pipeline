@@ -25,6 +25,8 @@ _num_lines = 0
 _include_children = True
 _progress = True
 
+_passes = []
+
 # Constants
 _archive_suf = '.tar.bz2'
 
@@ -358,6 +360,14 @@ def _copy_and_merge(src, tgt):
   shutil.copytree(src, tgt)
 
 
+def wrap_list(v):
+  return v if type(v) is list else [v]
+
+
+def unwrap_list(v):
+  return v[0] if type(v) is list and len(v) == 1 else v
+
+
 def _handle_archive_entry():
   pass
 
@@ -367,7 +377,62 @@ def _indicates_url():
 
 
 def _run_analysis(f, output_dir):
-  pass
+  assert os.path.isabs(f)
+  assert os.path.isabs(output_dir)
+
+  parent = os.path.dirname(f)
+  assert os.path.isabs(parent)
+
+  cwd = os.getcwd()
+  os.chdir(parent)
+
+  progress('Analysis passes: ', end='')
+
+  for p in _passes:
+    try:
+      if hasattr(p, 'output'):
+        output = wrap_list(p.output)
+
+        fos = []
+        for out in output:
+          out = os.path.join(output_dir, out)
+          fo = open(out, 'w')
+          fos.append(fo)
+
+        try:
+          r = p(f, unwrap_list(fos))
+        except KeyboardInterrupt:
+          raise
+        except BaseException as be:
+          progress('!')
+          traceback.print_exc(file=sys.stdout)
+          break
+        finally:
+          for fo in fos:
+            fo.close()
+      else:
+        try:
+          r = p(f)
+        except KeyboardInterrupt:
+          raise
+        except BaseException as be:
+          progress('!')
+          traceback.print_exc(file=sys.stdout)
+          break
+    except KeyboardInterrupt:
+      raise
+    except BaseException as be:
+      progress('^')
+      traceback.print_exc(file=sys.stdout)
+      break
+
+    progress('#', end='')
+
+    if not r:
+      break
+
+  progress()
+  os.chdir(cwd)
 
 
 def _handle_local_path(analysis_path, output_path):
