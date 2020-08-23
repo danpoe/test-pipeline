@@ -411,7 +411,7 @@ def _handle_archive_entry():
   pass
 
 
-def _indicates_url():
+def _indicates_url(r):
   return False
 
 
