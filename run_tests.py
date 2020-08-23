@@ -50,6 +50,12 @@ def progress(msg='', end='\n'):
     print(msg, end=end, flush=True)
 
 
+def timed_out():
+  now = time.time()
+  if _timeout:
+    return now - _starting_time > _timeout
+  return False
+
 class TimeoutException(Exception):
   pass
 
@@ -450,6 +456,9 @@ def _handle_local_path(analysis_path, output_path):
       worklist.extend(paths)
     else:
       assert os.path.isfile(p1)
+
+      if timed_out():
+        raise TimeoutException()
 
       os.makedirs(p2, exist_ok=True)
 
