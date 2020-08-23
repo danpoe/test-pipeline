@@ -3,6 +3,8 @@
 # Test runner
 
 import argparse
+import ast
+import inspect
 import os
 import psutil
 import re
@@ -11,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import threading
 import time
 import traceback
@@ -374,6 +377,36 @@ def unwrap_list(v):
   return v[0] if type(v) is list and len(v) == 1 else v
 
 
+def validate_function(f):
+  s = inspect.getsource(f)
+  s = textwrap.dedent(s)
+  tree = ast.parse(s)
+
+  opens_file = False
+
+  class CallValidator(ast.NodeVisitor):
+    def visit_Call(self, call):
+      nonlocal opens_file
+      func = call.func
+      if hasattr(func, 'id') and func.id == 'open':
+        opens_file = True
+      else:
+        self.generic_visit(call)
+
+  CallValidator().visit(tree)
+
+  return not opens_file
+
+
+def validate_pass(p):
+  if hasattr(p, '__call__'):
+    f = p.__call__
+  else:
+    f = p
+
+  return validate_function(f)
+
+
 def _handle_archive_entry():
   pass
 
@@ -608,6 +641,15 @@ def setup(parser=None):
   _setup_done = True
 
   return args
+
+
+def add_pass(p):
+  '''Add an analysis pass to be run'''
+  global _passes
+  assert _setup_done
+
+  assert validate_pass(p)
+  _passes.append(p)
 
 
 def test():
