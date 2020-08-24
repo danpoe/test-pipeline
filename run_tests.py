@@ -1,6 +1,27 @@
 #!/usr/bin/env python3
 
-# Test runner
+'''
+Test running framework
+
+The framework runs a number of custom analysis passes on a given set of files.
+The files the passes are run on are specified in an input file. Before running
+the analysis on a file, the file is copied to (a subdirectory of) the given
+directory `analysis_root`, and output files are put into (a subdirectory of) the
+given directory `output_root`.
+
+The framework needs to be instantiated in a driver script, which configures and
+adds the analysis passes to run. See `drivers/example/example.py` for an
+example. Analysis passes are added via `add_pass()`, and are run in order on
+each test file when `test()` is invoked. When an earlier analysis pass returns
+`False`, the subsequent passes are not run. This allows to run passes only on
+files with specific properties.
+
+An analysis pass is a callable that gets the path to the file to analyse as an
+argument. An optional second argument gives a list of files to write output to.
+If an analysis pass produces output, it needs to declare the output filenames
+via a member variable `output`, which is a list of filenames. For examples of
+configurable passes see `RunPass` and `CheckPass` below.
+'''
 
 import argparse
 import ast
