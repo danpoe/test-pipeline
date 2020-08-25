@@ -124,6 +124,13 @@ class MeasureMemoryUsage(threading.Thread):
     super(MeasureMemoryUsage, self).join(timeout)
 
 
+class FalsePass:
+  def __init__(self):
+    pass
+  def __call__(self, f):
+    return False
+
+
 class RunPass:
   '''Runs a given command and record performance metrics'''
 
