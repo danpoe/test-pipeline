@@ -461,7 +461,7 @@ class TestPipeline:
     cwd = os.getcwd()
     os.chdir(parent)
 
-    progress('Analysis passes: ', end='')
+    self.progress('Analysis passes: ', end='')
 
     for p in self._passes:
       try:
@@ -479,7 +479,7 @@ class TestPipeline:
           except KeyboardInterrupt:
             raise
           except BaseException as be:
-            progress('!')
+            self.progress('!')
             traceback.print_exc(file=sys.stdout)
             break
           finally:
@@ -491,22 +491,22 @@ class TestPipeline:
           except KeyboardInterrupt:
             raise
           except BaseException as be:
-            progress('!')
+            self.progress('!')
             traceback.print_exc(file=sys.stdout)
             break
       except KeyboardInterrupt:
         raise
       except BaseException as be:
-        progress('^')
+        self.progress('^')
         traceback.print_exc(file=sys.stdout)
         break
 
-      progress('#', end='')
+      self.progress('#', end='')
 
       if not r:
         break
 
-    progress()
+    self.progress()
     os.chdir(cwd)
 
 
@@ -532,7 +532,7 @@ class TestPipeline:
         os.makedirs(p2, exist_ok=True)
 
         rp = os.path.relpath(p1, self._analysis_root)
-        progress('Analysing: ' + rp)
+        self.progress('Analysing: ' + rp)
 
         self._run_analysis(p1, p2)
 
@@ -569,7 +569,7 @@ class TestPipeline:
 
     if os.path.exists(analysis_path):
       rp = os.path.relpath(analysis_path, self._analysis_root)
-      progress('Local path: ' + rp)
+      self.progress('Local path: ' + rp)
       self._handle_local_path(analysis_path, output_path)
 
 
@@ -691,7 +691,7 @@ class TestPipeline:
       if n >= self._num_lines:
         break
       line = lines[i-1]
-      progress(f'Handling line: {i:<7}')
+      self.progress(f'Handling line: {i:<7}')
       if line.startswith('#') or not line:
         continue
       n += 1
