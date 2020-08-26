@@ -1,11 +1,14 @@
 import glob
 import os
 import pathlib
-import run_tests as rt
+import test_pipeline as tp
 import shutil
 import unittest
 
 class Test(unittest.TestCase):
+  def __init__(self):
+    self._tp = tp.TestPipeline()
+
   @classmethod
   def setUpClass(cls):
     pathlib.Path('benchmark1.test').touch()
@@ -15,9 +18,9 @@ class Test(unittest.TestCase):
       f.write('benchmark2.test\n')
 
   def test_false(self):
-    rt.setup()
-    rt.add_pass(rt.FalsePass())
-    rt.test()
+    self._tp.setup()
+    self._tp.add_pass(tp.FalsePass())
+    self._tp.test()
 
     r = glob.glob('analysis_root/**/benchmark*.test', recursive=True)
     self.assertEqual(len(r), 2)
