@@ -1,10 +1,10 @@
-import run_tests as rt
+import test_pipeline as tp
 import tempfile
 import unittest
 
 class Test(unittest.TestCase):
   def test_run_pass_basic(self):
-    p = rt.RunPass(['echo', 'test'], ignore_file=True)
+    p = tp.RunPass(['echo', 'test'], ignore_file=True)
 
     with tempfile.TemporaryFile('w+') as f_stdout,\
       tempfile.TemporaryFile('w+') as f_stderr,\
