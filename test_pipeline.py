@@ -300,16 +300,30 @@ class CheckPass:
 
 
 class TestPipeline:
-  def __init__(self):
-    # Config
-    self._input_file = ''
-    self._analysis_root = ''
-    self._output_root = ''
-    self._start_line = 0
-    self._num_lines = 0
-    self._include_children = True
-    self._progress = True
+  def __init__(
+    self,
+    input_file='input.txt',
+    analysis_root='analysis_root',
+    output_root='output_root',
+    start_line=1,
+    num_lines=sys.maxsize,
+    include_children=True,
+    progress=True,
+    timeout=None,
+    memory_limit=None):
 
+    # Config
+    self._input_file = input_file
+    self._analysis_root = analysis_root
+    self._output_root = output_root
+    self._start_line = start_line
+    self._num_lines = num_lines
+    self._include_children = include_children
+    self._progress = progress
+    self._timeout = timeout
+    self._memory_limit = memory_limit
+
+    # Analysis passes to run
     self._passes = []
 
     # Constants
@@ -321,8 +335,60 @@ class TestPipeline:
 
     # Misc
     self._setup_done = False
-    self._starting_time = 0
-    self._timeout = None
+    self._starting_time = None
+
+
+  @staticmethod
+  def get_argument_parser():
+    '''Set up argument parser'''
+    parser = argparse.ArgumentParser(description='Test pipeline')
+    parser.add_argument('--input-file', default='input.txt')
+    parser.add_argument('--analysis-root', default='analysis_root')
+    parser.add_argument('--output-root', default='output_root')
+    parser.add_argument('--memory-limit', type=int)
+    parser.add_argument('--timeout', type=int)
+    parser.add_argument('--progress', action='store_true')
+    parser.add_argument('--start-line', default=1, type=int)
+    parser.add_argument('--num-lines', default=sys.maxsize, type=int)
+    return parser
+
+
+  @staticmethod
+  def from_arguments(self, args=None):
+    '''
+    Create analysis framework and configure it via the commandline arguments
+    '''
+
+    if not args:
+      parser = self.get_argument_parser()
+      args = parser.parse_args()
+
+    return TestPipeline(
+      input_file=args.input_file,
+      analysis_root=args.analysis_root,
+      output_root=args.output_root,
+      start_line=args.start_line,
+      num_lines=args.num_lines,
+      include_children=args.include_children,
+      progress=args.progress)
+
+
+  def setup(self):
+    archive_formats = shutil.get_archive_formats()
+    archive_formats = list(map(lambda p: p[0], archive_formats))
+    assert 'bztar' in archive_formats
+
+    if self._memory_limit:
+      resource.setrlimit(resource.RLIMIT_AS,
+        (self._memory_limit, resource.RLIM_INFINITY))
+
+    self._starting_time = time.time()
+
+    self._input_file = os.path.abspath(self._input_file)
+    self._analysis_root = os.path.abspath(self._analysis_root)
+    self._output_root = os.path.abspath(self._output_root)
+
+    self._setup_done = True
 
 
   def progress(self, msg='', end='\n'):
@@ -440,7 +506,7 @@ class TestPipeline:
     else:
       f = p
 
-    return self.validate_function(self, f)
+    return self.validate_function(f)
 
 
   def _handle_archive_entry(self):
@@ -622,52 +688,6 @@ class TestPipeline:
     for i, line in enumerate(lines):
       if not self._is_valid_entry(line):
         fatal(f'Line {i + 1} in input is invalid')
-
-
-  def setup_arg_parser(self):
-    '''Set up argument parser'''
-    parser = argparse.ArgumentParser(description='Run tests')
-    parser.add_argument('--input-file', default='input.txt')
-    parser.add_argument('--analysis-root', default='analysis_root')
-    parser.add_argument('--output-root', default='output_root')
-    parser.add_argument('--memory-limit', type=int)
-    parser.add_argument('--timeout', type=int)
-    parser.add_argument('--progress', action='store_true')
-    parser.add_argument('--start', default=1, type=int)
-    parser.add_argument('--num', default=sys.maxsize, type=int)
-    return parser
-
-
-  def setup(self, parser=None):
-    '''Set up the analysis framework and parse arguments'''
-
-    if not parser:
-      parser = self.setup_arg_parser()
-
-    args = parser.parse_args()
-
-    archive_formats = shutil.get_archive_formats()
-    archive_formats = list(map(lambda p: p[0], archive_formats))
-    assert 'bztar' in archive_formats
-
-    if args.memory_limit:
-      resource.setrlimit(resource.RLIMIT_AS,
-        (args.memory_limit, resource.RLIM_INFINITY))
-
-    self._starting_time = time.time()
-    self._timeout = args.timeout
-
-    self._input_file = os.path.abspath(args.input_file)
-    self._analysis_root = os.path.abspath(args.analysis_root)
-    self._output_root = os.path.abspath(args.output_root)
-
-    self._progress = args.progress
-    self._start_line = args.start
-    self._num_lines = args.num
-
-    self._setup_done = True
-
-    return args
 
 
   def add_pass(self, p):

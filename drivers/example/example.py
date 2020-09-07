@@ -7,24 +7,25 @@ Usage:
 ./example [--input-file <file>]
 '''
 
-import test_pipeline as tp
+import test_pipeline
 
 def _main():
+  tp = test_pipeline.TestPipeline()
   tp.setup()
 
   # Check property 1
   cmd = ['echo', '--arg']
-  p = tp.CheckPass(cmd, retcode=lambda r: r == 0)
+  p = test_pipeline.CheckPass(cmd, retcode=lambda r: r == 0)
   tp.add_pass(p)
 
   # Check property 2
   cmd = ['echo' , '--arg']
-  p = tp.CheckPass(cmd, regex_stdout=r'example')
+  p = test_pipeline.CheckPass(cmd, regex_stdout=r'example')
   tp.add_pass(p)
 
   # Run analysis
   cmd = ['echo', '--arg1', '--arg2']
-  p = tp.RunPass(cmd, timeout=1800)
+  p = test_pipeline.RunPass(cmd, timeout=1800)
   tp.add_pass(p)
 
   tp.test()
