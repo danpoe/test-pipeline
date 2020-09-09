@@ -354,13 +354,13 @@ class TestPipeline:
 
 
   @staticmethod
-  def from_arguments(self, args=None):
+  def from_arguments(args=None):
     '''
     Create analysis framework and configure it via the commandline arguments
     '''
 
     if not args:
-      parser = self.get_argument_parser()
+      parser = TestPipeline.get_argument_parser()
       args = parser.parse_args()
 
     return TestPipeline(
