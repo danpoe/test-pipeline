@@ -4,31 +4,32 @@ import unittest
 import tempfile
 
 class Test(unittest.TestCase):
-  def __init__(self):
-    self._tp = test_pipeline.TestPipeline()
-
   def test_validate_urls(self):
-    self.assertTrue(self._tp._is_http_url_entry('http://tests.com/mytest'))
-    self.assertFalse(self._tp._is_http_url_entry('https://tests.com/mytest'))
-    self.assertFalse(self._tp._is_http_url_entry('https://tests.com/dir/'))
-    self.assertFalse(self._tp._is_http_url_entry('http://tests.com'))
-    self.assertFalse(self._tp._is_http_url_entry('http://tests.com//mytest'))
-    self.assertFalse(self._tp._is_http_url_entry('http://tests.com/ /mytest'))
+    tp = test_pipeline.TestPipeline()
+    self.assertTrue(tp._is_http_url_entry('http://tests.com/mytest'))
+    self.assertFalse(tp._is_http_url_entry('https://tests.com/mytest'))
+    self.assertFalse(tp._is_http_url_entry('https://tests.com/dir/'))
+    self.assertFalse(tp._is_http_url_entry('http://tests.com'))
+    self.assertFalse(tp._is_http_url_entry('http://tests.com//mytest'))
+    self.assertFalse(tp._is_http_url_entry('http://tests.com/ /mytest'))
 
   def test_validate_paths(self):
-    self.assertTrue(self._tp._is_path_entry('abc/xyz'))
-    self.assertTrue(self._tp._is_path_entry('/abc/xyz'))
-    self.assertFalse(self._tp._is_path_entry('abc/xyz/'))
-    self.assertFalse(self._tp._is_path_entry('~abc'))
-    self.assertFalse(self._tp._is_path_entry('^abc'))
-    self.assertTrue(self._tp._is_path_entry('~/abc'))
-    self.assertTrue(self._tp._is_path_entry('^/abc'))
+    tp = test_pipeline.TestPipeline()
+    self.assertTrue(tp._is_path_entry('abc/xyz'))
+    self.assertTrue(tp._is_path_entry('/abc/xyz'))
+    self.assertFalse(tp._is_path_entry('abc/xyz/'))
+    self.assertFalse(tp._is_path_entry('~abc'))
+    self.assertFalse(tp._is_path_entry('^abc'))
+    self.assertTrue(tp._is_path_entry('~/abc'))
+    self.assertTrue(tp._is_path_entry('^/abc'))
 
   def test_validate_entries(self):
-    self.assertTrue(self._tp._is_valid_entry(''))
-    self.assertTrue(self._tp._is_valid_entry('# comment'))
+    tp = test_pipeline.TestPipeline()
+    self.assertTrue(tp._is_valid_entry(''))
+    self.assertTrue(tp._is_valid_entry('# comment'))
 
   def test_copy_and_merge(self):
+    tp = test_pipeline.TestPipeline()
     with tempfile.TemporaryDirectory() as d:
       # we use suffixes to indicate whether files and folders are unique (`u`)
       # or common (`c`) between the two top-level folders that are merged
@@ -51,7 +52,7 @@ class Test(unittest.TestCase):
       (d2 / 'dir3c' / 'file4c').touch()
       (d2 / 'dir3c' / 'file5u').touch()
       # now copy and merge
-      self._tp._copy_and_merge(d1, d2)
+      tp._copy_and_merge(d1, d2)
       # check result
       self.assertTrue(d2.is_dir())
       self.assertTrue((d2 / 'file1u').is_file())
