@@ -8,6 +8,7 @@ Usage:
 '''
 
 import test_pipeline
+import analysis_passes
 
 def _main():
   tp = test_pipeline.TestPipeline()
@@ -15,17 +16,17 @@ def _main():
 
   # Check property 1
   cmd = ['echo', '--arg']
-  p = test_pipeline.CheckPass(cmd, retcode=lambda r: r == 0)
+  p = analysis_passes.CheckPass(cmd, retcode=lambda r: r == 0)
   tp.add_pass(p)
 
   # Check property 2
   cmd = ['echo' , '--arg']
-  p = test_pipeline.CheckPass(cmd, regex_stdout=r'example')
+  p = analysis_passes.CheckPass(cmd, regex_stdout=r'example')
   tp.add_pass(p)
 
   # Run analysis
   cmd = ['echo', '--arg1', '--arg2']
-  p = test_pipeline.RunPass(cmd, timeout=1800)
+  p = analysis_passes.RunPass(cmd, timeout=1800)
   tp.add_pass(p)
 
   tp.test()
