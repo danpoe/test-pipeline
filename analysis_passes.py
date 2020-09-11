@@ -1,6 +1,7 @@
 import re
 import resource
 import psutil
+import shutil
 import subprocess
 import tempfile
 import threading
@@ -53,6 +54,15 @@ class MeasureMemoryUsage(threading.Thread):
   def join(self, timeout=None):
     self.stop.set()
     super(MeasureMemoryUsage, self).join(timeout)
+
+
+class MovePass:
+  def __init__(self, orig=lambda s: s, new=lambda s: s):
+    self.orig = orig
+    self.new = new
+  def __call__(self, f):
+    shutil.move(self.orig(f), self.new(f))
+    return True
 
 
 class RunPass:
