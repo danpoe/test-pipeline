@@ -259,7 +259,9 @@ class TestPipeline:
 
 
   def _indicates_url(self, r):
-    return False
+    b = r.scheme and r.netloc
+    assert not b or r.path
+    return b
 
 
   def _run_analysis(self, f, output_dir):
