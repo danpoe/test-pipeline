@@ -73,6 +73,8 @@ class TestPipeline:
 
     # Constants
     self._archive_suf = '.tar.bz2'
+    self._tmp_dir = '/tmp/run_tests'
+    self._tmp_dir_unpack = '/tmp/run_tests/unpack'
 
     # Sum of previous measurements
     self._utime_sum = 0
@@ -254,8 +256,42 @@ class TestPipeline:
     return self.validate_function(f)
 
 
-  def _handle_archive_entry(self):
-    pass
+  def _handle_archive_entry(self, archive_entry, subpath):
+    assert archive_entry.endswith(self._archive_suf)
+    assert not subpath or (len(subpath) > 1 and subpath.startswith('/'))
+
+    if os.path.exists(self._tmp_dir):
+      assert os.path.isdir(self._tmp_dir)
+      shutil.rmtree(self._tmp_dir)
+
+    os.makedirs(self._tmp_dir_unpack)
+
+    r = urllib.parse.urlparse(archive_entry)
+    if self._indicates_url(r):
+      name = os.path.basename(r.path)
+      assert name
+      archive_file = os.path.join(self._tmp_dir, name)
+      urllib.request.urlretrieve(archive_entry, archive_file)
+
+      analysis_path = self._join(
+        self._analysis_root, r.scheme, r.netloc, r.path, subpath)
+      output_path = self._join(
+        self._output_root, r.scheme, r.netloc, r.path, subpath)
+    else:
+      path = self._expand_path(archive_entry)
+      name = os.path.basename(path)
+      archive_file = os.path.join(self._tmp_dir, name)
+      shutil.copy2(path, archive_file)
+
+      analysis_path = self._join(self._analysis_root, path, subpath)
+      output_path = self._join(self._output_root, path, subpath)
+
+    shutil.unpack_archive(archive_file, self._tmp_dir_unpack)
+
+    path = self._join(self._tmp_dir_unpack, subpath)
+    self._copy_and_merge(path, analysis_path)
+
+    return analysis_path, output_path
 
 
   def _indicates_url(self, r):
