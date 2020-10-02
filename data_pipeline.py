@@ -86,9 +86,8 @@ def gather_data():
         filename = os.path.join(d, p.input_file)
 
         if os.path.exists(filename):
-          f = open(filename)
-          s = f.read()
-          f.close()
+          with open(filename) as f:
+            s = f.read()
           b, r = p(s)
           assert '\n' not in r
           if gathers_data:
@@ -103,14 +102,13 @@ def gather_data():
 
       os.chdir(cwd)
 
-  f = open(_output_file, 'w')
-  writer = csv.writer(f)
-  if records:
-    heading = ['test']
-    for p in _passes:
-      if hasattr(p, 'column'):
-        heading.append(p.column)
-    writer.writerow(heading)
-  for record in records:
-    writer.writerow(record)
-  f.close()
+  with open(_output_file, 'w') as f:
+    writer = csv.writer(f)
+    if records:
+      heading = ['test']
+      for p in _passes:
+        if hasattr(p, 'column'):
+          heading.append(p.column)
+      writer.writerow(heading)
+    for record in records:
+      writer.writerow(record)
