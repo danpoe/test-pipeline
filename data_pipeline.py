@@ -17,8 +17,8 @@ def fatal(msg):
 _setup_done = False
 
 
-def setup(parser=None):
-  """Set up the data gathering framework and parse arguments"""
+def setup():
+  '''Set up the data gathering framework and parse arguments'''
   global _output_root
   global _output_file
   global _setup_done
@@ -36,7 +36,7 @@ def setup(parser=None):
 
 
 def add_pass(p):
-  """Add a data gathering pass to be run"""
+  '''Add a data gathering pass to be run'''
   global _passes
   assert _setup_done
 
@@ -44,7 +44,7 @@ def add_pass(p):
 
 
 def gather_data():
-  """Run all added data gathering passes"""
+  '''Run all added data gathering passes'''
   assert _setup_done
   assert _passes
 
