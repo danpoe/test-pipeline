@@ -1,4 +1,4 @@
-import analysis_passes
+import test_passes
 import glob
 import os
 import pathlib
@@ -18,7 +18,7 @@ class Test(unittest.TestCase):
   def test_false(self):
     tp = test_pipeline.TestPipeline(progress=False)
     tp.setup()
-    tp.add_pass(analysis_passes.FalsePass())
+    tp.add_pass(test_passes.FalsePass())
     tp.test()
 
     r = glob.glob('analysis_root/**/benchmark*.test', recursive=True)
