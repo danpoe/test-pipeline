@@ -11,10 +11,11 @@ import data_pipeline
 import data_passes
 
 def _main():
-  data_pipeline.setup()
+  dp = data_pipeline.DataPipeline()
+  dp.setup()
   p = data_passes.FalsePass('data.txt')
-  data_pipeline.add_pass(p)
-  data_pipeline.gather_data()
+  dp.add_pass(p)
+  dp.gather_data()
 
 
 if __name__ == '__main__':
