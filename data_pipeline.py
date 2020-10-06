@@ -24,9 +24,6 @@ class DataPipeline:
 
   def setup(self):
     '''Set up the data gathering framework and parse arguments'''
-    global _output_root
-    global _output_file
-    global _setup_done
 
     _output_root = os.path.abspath(self._output_root)
     if not os.path.isdir(_output_root):
@@ -49,7 +46,7 @@ class DataPipeline:
 
   def gather_data(self):
     '''Run all added data gathering passes'''
-    assert _setup_done
+    assert self._setup_done
     assert self._passes
 
     records = []
