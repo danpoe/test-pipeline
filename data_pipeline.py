@@ -12,10 +12,15 @@ class DataPipeline:
   def __init__(self):
     self._output_root = 'output_root'
     self._output_file = 'results.csv'
+    self._progress = False
 
     self._passes = []
 
     self._setup_done = False
+
+  def progress(self, msg='', end='\n'):
+    if self._progress:
+      print(msg, end=end, flush=True)
 
   def setup(self):
     '''Set up the data gathering framework and parse arguments'''
@@ -51,6 +56,7 @@ class DataPipeline:
 
     worklist = [_output_root]
 
+    self.progress('Starting exploration')
     file_counter = 0
 
     while worklist:
