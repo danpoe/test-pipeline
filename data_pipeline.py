@@ -1,5 +1,6 @@
-import os
+import argparse
 import csv
+import os
 import sys
 
 
@@ -9,10 +10,14 @@ def fatal(msg):
 
 
 class DataPipeline:
-  def __init__(self):
-    self._output_root = 'output_root'
-    self._output_file = 'results.csv'
-    self._progress = False
+  def __init__(
+    self,
+    output_root = 'output_root',
+    output_file = 'results.csv',
+    progress = False):
+    self._output_root = output_root
+    self._output_file = output_file
+    self._progress = progress
 
     self._passes = []
 
@@ -21,6 +26,22 @@ class DataPipeline:
   def progress(self, msg='', end='\n'):
     if self._progress:
       print(msg, end=end, flush=True)
+
+  @staticmethod
+  def get_argument_parser():
+    parser = argparse.ArgumentParser(description='Data pipeline')
+    parser.add_argument('--output-root', default='output_root')
+    parser.add_argument('--output-file', default='results.csv')
+    parser.add_argument('--progress', action='store_true')
+    return parser
+
+  @staticmethod
+  def from_arguments(args=None):
+    if not args:
+      parser = DataPipeline.get_argument_parser()
+      args = parser.parse_args()
+
+    return DataPipeline(args.output_root, args.output_file, args.progress)
 
   def setup(self):
     '''Set up the data gathering framework and parse arguments'''
@@ -34,13 +55,12 @@ class DataPipeline:
     if os.path.exists(_output_file) and not os.access(_output_file, os.W_OK):
       fatal(f'Output file {_output_file} not writable')
 
-    _setup_done = True
+    self._setup_done = True
 
 
   def add_pass(self, p):
     '''Add a data gathering pass to be run'''
-    assert _setup_done
-
+    assert self._setup_done
     self._passes.append(p)
 
 
@@ -51,7 +71,7 @@ class DataPipeline:
 
     records = []
 
-    worklist = [_output_root]
+    worklist = [self._output_root]
 
     self.progress('Starting exploration')
     file_counter = 0
@@ -67,7 +87,7 @@ class DataPipeline:
       if leaf:
         file_counter += 1
 
-        rp = os.path.relpath(d, _output_root)
+        rp = os.path.relpath(d, self._output_root)
         records.append([rp])
         record = records[-1]
 
@@ -104,7 +124,7 @@ class DataPipeline:
 
         os.chdir(cwd)
 
-    with open(_output_file, 'w') as f:
+    with open(self._output_file, 'w') as f:
       writer = csv.writer(f)
       if records:
         heading = ['test']
