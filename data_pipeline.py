@@ -1,3 +1,33 @@
+'''
+Data gathering framework
+
+The framework gathers the data produced by a test pipeline driver script and
+produces a csv results table.
+
+The framework needs to be instantiated in a driver script, which configures and
+adds a number of data gathering and checking passes to run (for an example see
+`drivers/data-example/example.py`). Passes are added via `add_pass()`, and are
+run on the output files produced by the test pipeline when `gather_data()` is
+invoked. The directory that contains the output of the test running framework
+can be specified via the argument `output_root`.
+
+A data gathering or checking pass is a callable that gets the contents of a file
+as an argument. The passes need to define the file to read via the member
+variable `input_file`. A data gathering pass corresponds to a column in the csv
+results table and needs to additionally define a member variable `column`. It
+gives the name of the column that corresponds to the pass. Each call to a data
+gathering pass produces one entry in the respective column.
+
+Both data gathering and checking passes return a pair (bool, str). The first
+column indicates whether to run subsequent passes, and the second component
+gives the extracted data to write to the csv column. The second component is
+ignored for checking passes (i.e., passes that do not have a `column` member
+variable).
+
+For examples of configurable passes see `CopyPass` and `ExtractPass` in the
+data_passes module.
+'''
+
 import argparse
 import csv
 import os
