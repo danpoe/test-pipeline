@@ -76,14 +76,14 @@ class DataPipeline:
   def setup(self):
     '''Set up the data gathering framework and parse arguments'''
 
-    _output_root = os.path.abspath(self._output_root)
-    if not os.path.isdir(_output_root):
-      fatal(f'Directory {_output_root} does not exist')
+    self._output_root = os.path.abspath(self._output_root)
+    if not os.path.isdir(self._output_root):
+      fatal(f'Directory {self._output_root} does not exist')
 
-    _output_file = os.path.abspath(self._output_file)
+    self._output_file = os.path.abspath(self._output_file)
 
-    if os.path.exists(_output_file) and not os.access(_output_file, os.W_OK):
-      fatal(f'Output file {_output_file} not writable')
+    if os.path.exists(self._output_file) and not os.access(self._output_file, os.W_OK):
+      fatal(f'Output file {self._output_file} not writable')
 
     self._setup_done = True
 
